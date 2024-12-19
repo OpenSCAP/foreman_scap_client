@@ -75,6 +75,14 @@ module ForemanScapClient
 
     def run_scan
       stdout_str, error_str, result = Open3.capture3(scan_command_env_vars, scan_command)
+      File.open("/var/log/fsc_scan.log", "a") do |file|
+        file.puts("==== Run at #{Time.now} ====")
+        file.puts("[STDOUT]:")
+        file.write(stdout_str)
+        file.puts("\n[STDERR]:")
+        file.write(error_str)
+        file.puts("\n==== End of Run ====\n\n")
+      end
       if result.success? || result.exitstatus == 2
         error_str.each_line { |item| print item if item.start_with?('WARNING:') || item.start_with?('Downloading') }
         @report = results_path
